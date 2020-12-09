@@ -75,7 +75,7 @@ namespace Test.Controllers
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Something went wrong!");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
 
         }
