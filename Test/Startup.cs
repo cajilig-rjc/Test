@@ -30,7 +30,7 @@ namespace Test
             });
 
             services.AddDbContext<TestDbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("Default")));
-            services.AddSingleton<TestDbRepository>();
+            services.AddTransient<IEmployee,TestDbRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
