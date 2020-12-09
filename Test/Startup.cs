@@ -1,3 +1,5 @@
+using Core.Data;
+using Core.Data.DAL;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +30,7 @@ namespace Test
             });
 
             services.AddDbContext<TestDbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("Default")));
+            services.AddSingleton<TestDbRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

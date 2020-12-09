@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Core.Data.DAL;
+using Core.Data.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Test.Models;
 
 namespace Test.Controllers
 {
@@ -13,11 +12,11 @@ namespace Test.Controllers
     [ApiController]
     public class TestsController : ControllerBase
     {
-        private readonly TestDbContext _context;
+        private readonly IEmployee _repo;
         private readonly ILogger _logger;
-        public TestsController(TestDbContext context,ILogger<TestsController> logger)
+        public TestsController(TestDbRepository repo,ILogger<TestsController> logger)
         {
-            _context = context;
+            _repo = repo;
             _logger = logger;
         }
         [HttpGet()]
@@ -25,7 +24,7 @@ namespace Test.Controllers
         {
             try
             {
-                var employees = await _context.Employees.ToListAsync();
+                var employees = await _repo.GetEmployees();
 
                 if (employees.Count == 0)
                     return StatusCode(StatusCodes.Status204NoContent);
@@ -47,7 +46,7 @@ namespace Test.Controllers
         {
             try
             {
-                var employee = await _context.Employees.Where(e => e.Id == id).FirstOrDefaultAsync();
+                var employee = await _repo.GetEmployee(id);
 
                 if (employee== null)
                     return StatusCode(StatusCodes.Status204NoContent);
@@ -69,9 +68,8 @@ namespace Test.Controllers
         {
             try
             {
-                _context.Add(employee);
-                 await _context.SaveChangesAsync();
-                 return StatusCode(200, employee.Id);
+                
+                 return StatusCode(200, await _repo.AddEmployee(employee));
             }
             catch (Exception ex)
             {
@@ -86,15 +84,9 @@ namespace Test.Controllers
         {
             try
             {
-                var _employee = _context.Employees.Where(e => e.Id == employee.Id).FirstOrDefaultAsync();
-                if (_employee != null)
-                    _context.Entry(employee).State = EntityState.Detached;
-                else
-                    return StatusCode(StatusCodes.Status204NoContent);
-
-                _context.Entry(employee).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                return StatusCode(200, employee);
+               
+              
+                return StatusCode(200, await _repo.UpdateEmployee(employee));
             }
             catch (Exception ex)
             {
@@ -109,15 +101,9 @@ namespace Test.Controllers
         {
             try
             {
-                var _employee = _context.Employees.Where(e => e.Id == id).FirstOrDefaultAsync();
-                if (_employee == null)
-                    return StatusCode(StatusCodes.Status204NoContent);
-
-
-                _context.Remove(_employee);
-                await _context.SaveChangesAsync();
+               
                 
-                return StatusCode(200, _employee);
+                return StatusCode(200,await _repo.DeleteEmployee(id));
             }
             catch (Exception ex)
             {
